@@ -1,0 +1,20 @@
+[2026-01-23 15:27:38] [INFO] === Starting Slot Generation Process ===
+[2026-01-23 15:27:38] [INFO] First run detected. Starting from first day of current month: 2026-01-01
+[2026-01-23 15:27:38] [INFO] Generation range: 2026-01-01 to 2026-01-31 (inclusive)
+[2026-01-23 15:27:38] [INFO] Found 76 weekly slot configurations (76 active, 0 inactive)
+[2026-01-23 15:27:38] [INFO] Processed 31 days. Prepared 340 slots for insertion
+[2026-01-23 15:27:38] [INFO] === Slot Generation Completed Successfully ===
+[2026-01-23 15:27:38] [INFO] Slots inserted: 340
+[2026-01-23 15:27:38] [INFO] Slots skipped (duplicates): 0
+[2026-01-23 15:27:38] [INFO] Start date: 2026-01-01
+[2026-01-23 15:27:38] [INFO] End date: 2026-01-31
+[2026-01-24 11:12:33] [INFO] === Starting Slot Generation Process ===
+[2026-01-24 11:12:33] [INFO] Found existing slots. Maximum date: 2026-01-31. Starting from: 2026-02-01
+[2026-01-24 11:12:33] [INFO] Generation range: 2026-02-01 to 2026-03-31 (inclusive)
+[2026-01-24 11:12:33] [INFO] Found 76 weekly slot configurations (76 active, 0 inactive)
+[2026-01-24 11:12:33] [INFO] Processed 59 days. Prepared 636 slots for insertion
+[2026-01-24 11:12:33] [INFO] === Slot Generation Completed Successfully ===
+[2026-01-24 11:12:33] [INFO] Slots inserted: 636
+[2026-01-24 11:12:33] [INFO] Slots skipped (duplicates): 0
+[2026-01-24 11:12:33] [INFO] Start date: 2026-02-01
+[2026-01-24 11:12:33] [INFO] End date: 2026-03-31

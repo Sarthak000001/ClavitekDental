@@ -1,0 +1,12 @@
+{
+  "name": "clavitek-dental-mern",
+  "version": "1.0.0",
+  "scripts": {
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\""
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <title>HealthCare Clinic - Receptionist Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="logo-circle">
+                    <img src="assets/images/logo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <h1>Somani's Clinic</h1>
+                <p>Receptionist Portal</p>
+            </div>
+
+            <div class="login-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" placeholder="Enter username" autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="password-input">
+                        <input type="password" id="loginPassword" placeholder="Enter password"
+                            autocomplete="current-password">
+                        <button type="button" class="password-toggle" onclick="togglePassword()">
+                            <i data-lucide="eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-block" onclick="handleLogin()">Login</button>
+
+                <!--<div class="demo-credentials"> -->
+                <!--<p><strong>Demo Credentials:</strong></p> -->
+                <!--<p>Username: receptionist</p> -->
+                <!--<p>Password: demo123</p> -->
+                <!--</div> -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="mainDashboard" class="dashboard-container" style="display: none;">
+        <!-- Sidebar Overlay (Mobile) -->
+        <div class="sidebar-overlay" onclick="toggleMobileMenu()"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <div class="logo-icon">
+                        <img src="assets/images/logo.png" alt="Logo"
+                            style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="logo-text">
+                        <h2>HealthCare Clinic</h2>
+                        <p>Receptionist</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard')">
+                    <i data-lucide="home"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-page="appointments" onclick="navigateTo('appointments')">
+                    <i data-lucide="calendar"></i>
+                    <span>Appointments</span>
+                </button>
+                <button class="nav-item" data-page="doctors" onclick="navigateTo('doctors')">
+                    <i data-lucide="users"></i>
+                    <span>Doctors</span>
+                </button>
+                <button class="nav-item" data-page="followups" onclick="navigateTo('followups')">
+                    <i data-lucide="activity"></i>
+                    <span>Follow-ups</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="handleLogout()">
+                    <i data-lucide="log-out"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                <i data-lucide="menu"></i>
+            </button>
+        </aside>
+
+        <!-- Top Header Bar -->
+        <header class="top-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <button class="mobile-sidebar-toggle" onclick="toggleMobileMenu()">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <h2 id="headerTitle" style="font-size: 1.25rem; font-weight: 700; color: #111827; margin: 0;">
+                        Dashboard</h2>
+                </div>
+                <div class="header-right">
+                    <button id="newAppointmentBtn" class="btn btn-primary btn-new-appt"
+                        onclick="openNewAppointmentModal()">
+                        <i data-lucide="calendar-plus"></i>
+                        <span class="btn-new-appt-text">New Appointment</span>
+                    </button>
+                    <button id="doctorSlotsBtn" class="btn btn-primary btn-new-appt"
+                        onclick="openAddSlotModal()" style="display:none;">
+                        <i data-lucide="clock"></i>
+                        <span class="btn-new-appt-text">Add Slot</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Dashboard Page -->
+            <div id="dashboardPage" class="page active">
+                <div class="page-header">
+                    <div>
+
+                        <p style="color: #6b7280; margin-top: 0.5rem; font-size: 0.875rem;" id="dashboardSubtitle">
+                            Overview of today's appointments</p>
+                        <p style="color: #9ca3af; margin-top: 0.5rem; font-size: 0.8rem;" id="currentDateTime">
+                            <i data-lucide="clock" style="width: 14px; height: 14px; vertical-align: middle;"></i>
+                            <span id="datetimeDisplay">Loading...</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Dashboard Filters -->
+                <div class="filters-card">
+                    <div class="filters-grid-dashboard">
+                        <div class="filter-group filter-group-fixed">
+                            <label for="dashboardFilterType">
+                                <i data-lucide="filter"></i>
+                                Filter Type
+                            </label>
+                            <select id="dashboardFilterType" class="filter-input"
+                                onchange="handleDashboardFilterChange()">
+                                <option value="today">Today</option>
+                                <option value="date-range">Date Range</option>
+                                <option value="this-week">This Week</option>
+                                <option value="this-month">This Month</option>
+                            </select>
+                        </div>
+                        <div class="filter-group filter-group-fixed" id="dateRangeGroup" style="display: none;">
+                            <label for="dashboardDateFrom">
+                                <i data-lucide="calendar"></i>
+                                From Date
+                            </label>
+                            <input type="date" id="dashboardDateFrom" class="filter-input"
+                                onchange="applyDashboardFilters()">
+                        </div>
+                        <div class="filter-group filter-group-fixed" id="dateRangeToGroup" style="display: none;">
+                            <label for="dashboardDateTo">
+                                <i data-lucide="calendar"></i>
+                                To Date
+                            </label>
+                            <input type="date" id="dashboardDateTo" class="filter-input"
+                                onchange="applyDashboardFilters()">
+                        </div>
+                        <div class="filter-group filter-group-fixed">
+                            <label for="dashboardDoctor">
+                                <i data-lucide="user-circle"></i>
+                                Doctor
+                            </label>
+                            <select id="dashboardDoctor" class="filter-input" onchange="applyDashboardFilters()">
+                                <option value="">All Doctors</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-content">
+                            <div class="kpi-text">
+                                <p class="kpi-label">Total Appointments</p>
+                                <p class="kpi-value" id="totalAppointments">0</p>
+                                <p class="kpi-sublabel" id="totalSublabel">Today</p>
+                            </div>
+                            <i data-lucide="calendar" class="kpi-icon icon-indigo"></i>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card kpi-card-success">
+                        <div class="kpi-content">
+                            <div class="kpi-text">
+                                <p class="kpi-label">Completed</p>
+                                <p class="kpi-value text-green" id="completedCount">0</p>
+                                <p class="kpi-sublabel" id="completedPercentage">0% of total</p>
+                            </div>
+                            <i data-lucide="check-circle" class="kpi-icon icon-green"></i>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card kpi-card-danger">
+                        <div class="kpi-content">
+                            <div class="kpi-text">
+                                <p class="kpi-label">Cancelled</p>
+                                <p class="kpi-value text-red" id="cancelledCount">0</p>
+                                <p class="kpi-sublabel" id="cancelledPercentage">0% of total</p>
+                            </div>
+                            <i data-lucide="x-circle" class="kpi-icon icon-red"></i>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card kpi-card-warning">
+                        <div class="kpi-content">
+                            <div class="kpi-text">
+                                <p class="kpi-label">No-Show</p>
+                                <p class="kpi-value text-orange" id="noShowCount">0</p>
+                                <p class="kpi-sublabel" id="noShowPercentage">0% of total</p>
+                            </div>
+                            <i data-lucide="user-x" class="kpi-icon icon-orange"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Heatmap -->
+                <div class="card"
+                    style="margin-top: 1.5rem; margin-bottom: 1.5rem; background: #fff; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); border: 1px solid #e5e7eb;">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.125rem; font-weight: 600; color: #111827;">Time-Slot
+                        Utilization Heatmap</h3>
+                    <div id="heatmapContainer" style="overflow-x: auto;">
+                        <div class="text-center" style="padding: 2rem; color: #6b7280;">Loading heatmap...</div>
+                    </div>
+                </div>
+
+                <!-- Charts -->
+                <div class="chart-grid">
+                    <div class="chart-card">
+                        <h3>Doctor-wise Appointments</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="doctorBarChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Appointment Status Breakdown</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="statusPieChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+
+            <!-- Appointments Page -->
+            <div id="appointmentsPage" class="page">
+                <div class="page-header">
+                    <div>
+
+                        <p style="color: #6b7280; margin-top: 0.5rem; font-size: 0.875rem;">Manage and track patient
+                            appointments</p>
+                    </div>
+                </div>
+
+                <!-- Filters Section -->
+                <div class="filters-card">
+                    <div class="filters-grid-appointments">
+                        <div class="filter-group filter-group-fixed">
+                            <label for="appointmentFilterType">
+                                <i data-lucide="filter"></i>
+                                Filter Type
+                            </label>
+                            <select id="appointmentFilterType" class="filter-input"
+                                onchange="handleAppointmentFilterChange()">
+                                <option value="today" selected>Today</option>
+                                <option value="this-week">This Week</option>
+                                <option value="this-month">This Month</option>
+                                <option value="date-range">Date Range</option>
+                            </select>
+                        </div>
+                        <div class="filter-group filter-group-fixed" id="appointmentDateRangeGroup"
+                            style="display: none;">
+                            <label for="appointmentDateFrom">
+                                <i data-lucide="calendar"></i>
+                                From Date
+                            </label>
+                            <input type="date" id="appointmentDateFrom" class="filter-input"
+                                onchange="applyAppointmentFilters()">
+                        </div>
+                        <div class="filter-group filter-group-fixed" id="appointmentDateRangeToGroup"
+                            style="display: none;">
+                            <label for="appointmentDateTo">
+                                <i data-lucide="calendar"></i>
+                                To Date
+                            </label>
+                            <input type="date" id="appointmentDateTo" class="filter-input"
+                                onchange="applyAppointmentFilters()">
+                        </div>
+                        <div class="filter-group filter-group-fixed">
+                            <label for="searchPatient">
+                                <i data-lucide="search"></i>
+                                Patient name or phone
+                            </label>
+                            <input type="text" id="searchPatient" class="filter-input" placeholder="Search..."
+                                onkeyup="applyAppointmentFilters()">
+                        </div>
+                        <div class="filter-group filter-group-fixed">
+                            <label for="filterAppointmentDoctor">
+                                <i data-lucide="user-circle"></i>
+                                Doctor
+                            </label>
+                            <select id="filterAppointmentDoctor" class="filter-input"
+                                onchange="applyAppointmentFilters()">
+                                <option value="">All Doctors</option>
+                            </select>
+                        </div>
+                        <div class="filter-group filter-group-fixed">
+                            <label for="filterAppointmentStatus">
+                                <i data-lucide="filter"></i>
+                                Status
+                            </label>
+                            <select id="filterAppointmentStatus" class="filter-input"
+                                onchange="applyAppointmentFilters()">
+                                <option value="">All Status</option>
+                                <option value="BOOKED">Booked</option>
+                                <option value="COMPLETED">Completed</option>
+                                <option value="CANCELLED">Cancelled</option>
+                                <option value="NO_SHOW">No-Show</option>
+                            </select>
+                        </div>
+                        <div class="filter-group filter-group-fixed">
+                            <label for="filterAppointmentType">
+                                <i data-lucide="tag"></i>
+                                Type
+                            </label>
+                            <select id="filterAppointmentType" class="filter-input"
+                                onchange="applyAppointmentFilters()">
+                                <option value="">All Types</option>
+                                <option value="normal">Normal</option>
+                                <option value="followup">Follow-up</option>
+                            </select>
+                        </div>
+                        <div class="filter-group filter-group-fixed" style="justify-content: flex-end;">
+                            <button class="btn btn-primary btn-block" onclick="downloadAppointments()">
+                                <i data-lucide="download"></i>
+                                Download CSV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Appointments List (<span id="appointmentsTotalCount">0</span> total)</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Slot</th>
+                                    <th>Doctor</th>
+                                    <th>Patient Name</th>
+                                    <th>WhatsApp</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointmentsTableBody">
+                                <tr>
+                                    <td colspan="7" class="text-center">Loading appointments...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doctors Page -->
+            <div id="doctorsPage" class="page">
+                <div class="page-header">
+                    <div>
+
+                        <p style="color: #6b7280; margin-top: 0.5rem; font-size: 0.875rem;">Manage doctor availability
+                            and time slots</p>
+                    </div>
+                </div>
+
+                <div id="doctorsCardContainer" class="doctors-card-grid">
+                    <div class="text-center" style="padding: 2rem; color: #6b7280;">
+                        <div class="spinner"></div>
+                        <p style="margin-top: 1rem;">Loading doctors...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Schedule Management Page -->
+            <div id="weeklySchedulePage" class="page">
+                <div class="page-header">
+                    <a href="#" class="btn-back-to-doctors" onclick="navigateTo('doctors'); return false;">
+                        <i data-lucide="arrow-left"></i>
+                        <span>Back to Doctors</span>
+                    </a>
+
+                </div>
+
+                <!-- Doctor Profile Card -->
+                <div class="doctor-profile-card" id="doctorProfileCard">
+                    <div class="doctor-profile-header">
+                        <div class="doctor-avatar">
+                            <img src="assets/images/doctor_avatar.png" alt="Doctor"
+                                style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="doctor-profile-info">
+                            <h3 id="doctorProfileName">Dr. Sharma</h3>
+                            <p class="doctor-specialty" id="doctorProfileSpecialty">General Physician</p>
+                            <p class="doctor-practice" id="doctorProfilePractice">General Practice</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Schedule Section -->
+                <div class="weekly-schedule-card">
+                    <div class="weekly-schedule-header">
+                        <h3>
+                            <i data-lucide="clock"></i>
+                            Weekly Schedule
+                        </h3>
+                        <button class="btn btn-primary btn-add-slot" onclick="openAddSlotModal()">
+                            <i data-lucide="plus"></i>
+                            <span>Add Slot</span>
+                        </button>
+                    </div>
+
+                    <div id="weeklyScheduleContainer">
+                        <!-- Days will be rendered here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add/Edit Slot Modal -->
+            <div id="slotModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="slotModalTitle">Add Slot</h3>
+                        <button class="modal-close" onclick="closeSlotModal()">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="slotForm">
+                            <input type="hidden" id="slotId">
+                            <input type="hidden" id="slotDoctorId">
+
+                            <div class="form-group" id="slotDayOfWeekGroup">
+                                <label for="slotDayOfWeek">Day of Week</label>
+                                <select id="slotDayOfWeek" class="form-input" required>
+                                    <option value="">Select Day</option>
+                                    <option value="MONDAY">Monday</option>
+                                    <option value="TUESDAY">Tuesday</option>
+                                    <option value="WEDNESDAY">Wednesday</option>
+                                    <option value="THURSDAY">Thursday</option>
+                                    <option value="FRIDAY">Friday</option>
+                                    <option value="SATURDAY">Saturday</option>
+                                    <option value="SUNDAY">Sunday</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" id="slotStartTimeGroup">
+                                <label for="slotStartTime">Start Time</label>
+                                <input type="time" id="slotStartTime" class="form-input" required>
+                            </div>
+
+                            <div class="form-group" id="slotEndTimeGroup">
+                                <label for="slotEndTime">End Time</label>
+                                <input type="time" id="slotEndTime" class="form-input" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="slotMaxCapacity">Max Capacity</label>
+                                <input type="number" id="slotMaxCapacity" class="form-input" min="1" max="50" value="10"
+                                    required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="slotIsActive" checked>
+                                    <span>Active</span>
+                                </label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeSlotModal()">Cancel</button>
+                        <button class="btn btn-primary" onclick="saveSlot()">Save Slot</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Follow-ups Page -->
+            <div id="followupsPage" class="page">
+                <div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;">
+                    <div>
+                        <h1 class="page-title">Follow-up Plans</h1>
+                        <p style="color: #6b7280; margin-top: 0.5rem; font-size: 0.875rem;">Monitor and manage multi-session patient care</p>
+                    </div>
+                    <div style="display: flex; gap: 0.75rem; align-items: center;">
+                        <div class="modern-search-container">
+                            <i data-lucide="search" class="search-icon-inner"></i>
+                            <input type="text" id="searchFollowups" class="modern-search-input" placeholder="Search patient or doctor..." onkeyup="filterFollowupPlans()">
+                        </div>
+                        <button class="btn btn-secondary btn-premium-secondary" onclick="openManagePresetsModal()">
+                            <i data-lucide="settings"></i>
+                            <span>Manage Presets</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Follow-up Status Tiles -->
+                <div class="followup-tiles-container">
+                    <div class="followup-tile active" id="tileAll" onclick="setFollowupFilter('ALL')">
+                        <div class="tile-icon icon-all">
+                            <i data-lucide="layers"></i>
+                        </div>
+                        <div class="tile-info">
+                            <span class="tile-label">All Plans</span>
+                            <span class="tile-count" id="countAll">0</span>
+                        </div>
+                    </div>
+                    <div class="followup-tile" id="tileInProgress" onclick="setFollowupFilter('IN_PROGRESS')">
+                        <div class="tile-icon icon-progress">
+                            <i data-lucide="clock"></i>
+                        </div>
+                        <div class="tile-info">
+                            <span class="tile-label">In Progress</span>
+                            <span class="tile-count" id="countInProgress">0</span>
+                        </div>
+                    </div>
+                    <div class="followup-tile" id="tileCompleted" onclick="setFollowupFilter('COMPLETED')">
+                        <div class="tile-icon icon-complete">
+                            <i data-lucide="check-circle"></i>
+                        </div>
+                        <div class="tile-info">
+                            <span class="tile-label">Completed</span>
+                            <span class="tile-count" id="countCompleted">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Follow-ups Grid -->
+                <div id="followupsContainer" class="kpi-grid" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+                    <div class="text-center" style="padding: 2rem; color: #6b7280; grid-column: 1 / -1;">
+                        <p>Loading follow-up plans...</p>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div id="followupsPagination" class="pagination-container"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Custom Heatmap Tooltip -->
+    <div id="heatmapTooltip" class="heatmap-tooltip"></div>
+
+    <!-- Manage Follow-up Presets Modal -->
+    <div id="managePresetsModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 700px; border-radius: 1.25rem;">
+            <div class="modal-header" style="border-bottom: 1px solid #f3f4f6; padding: 1.5rem 2rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="background: #eff6ff; color: #3b82f6; padding: 0.5rem; border-radius: 0.75rem;">
+                        <i data-lucide="settings-2" style="width: 20px; height: 20px;"></i>
+                    </div>
+                    <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: #111827;">Manage Presets</h3>
+                </div>
+                <button class="modal-close" onclick="closeManagePresetsModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 2rem;">
+                <!-- Selection Hub -->
+                <div class="selection-hub">
+                    <div style="flex: 1;">
+                        <label for="managePresetDoctorSelect" class="selection-label">Associated Doctor</label>
+                        <div class="select-wrapper">
+                            <i data-lucide="user-round" class="select-icon"></i>
+                            <select id="managePresetDoctorSelect" class="selection-select" onchange="loadPresetsForManagement()">
+                                <option value="">Choose a doctor...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="addPresetInlineBtn" class="btn btn-primary" onclick="showPresetForm()" style="height: 46px; border-radius: 0.75rem; display: none; margin-bottom: 0;">
+                        <i data-lucide="plus-circle"></i>
+                        <span>Create Template</span>
+                    </button>
+                </div>
+
+                <!-- Inline Add/Edit Form (Hidden by default) -->
+                <div id="presetInlineForm" style="display: none; background: #f9fafb; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #e5e7eb;">
+                    <h4 id="presetFormTitle" style="margin-top: 0; margin-bottom: 1rem; font-size: 0.9375rem;">Add New Preset</h4>
+                    <input type="hidden" id="editPresetId">
+                    <div class="na-row">
+                        <div class="na-form-group">
+                            <label for="inlinePresetName">Preset Name *</label>
+                            <input type="text" id="inlinePresetName" class="na-input" placeholder="e.g. Implant Weekly x4">
+                        </div>
+                    </div>
+                    <div class="na-row" style="margin-top: 0.5rem;">
+                        <div class="na-form-group">
+                            <label for="inlinePresetInterval">Interval</label>
+                            <select id="inlinePresetInterval" class="na-input na-select">
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                        </div>
+                        <div class="na-form-group">
+                            <label for="inlinePresetSessions">Total Sessions</label>
+                            <input type="number" id="inlinePresetSessions" class="na-input" min="1" max="20" value="4">
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+                        <button class="btn btn-secondary" onclick="hidePresetForm()">Cancel</button>
+                        <button class="btn btn-primary" onclick="savePresetInline()">Save Preset</button>
+                    </div>
+                </div>
+
+                <div id="presetsManagementGrid" class="presets-grid">
+                    <!-- Presets will be rendered as cards here -->
+                    <div style="grid-column: 1 / -1; text-align: center; color: #6b7280; padding: 3rem;">
+                        <i data-lucide="user-search" style="width: 48px; height: 48px; color: #d1d5db; margin-bottom: 1rem;"></i>
+                        <p>Select a doctor above to manage their follow-up presets</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reschedule Session Modal -->
+    <div id="rescheduleModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>
+                    <i data-lucide="calendar-days"></i>
+                    Reschedule Session
+                </h3>
+                <button class="modal-close" onclick="closeRescheduleModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="rescheduleSessionId">
+                <div class="na-form-group">
+                    <label for="rescheduleDateInput">New Date</label>
+                    <input type="date" id="rescheduleDateInput" class="na-input">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem;">
+                    <button class="btn btn-secondary" onclick="closeRescheduleModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="submitReschedule()">Update Date</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== NEW APPOINTMENT MODAL ========== -->
+    <div id="newAppointmentModal" class="na-modal-overlay" style="display:none;" onclick="handleNaOverlayClick(event)">
+        <div class="na-modal-card">
+
+            <!-- Modal Header -->
+            <div class="na-modal-header">
+                <div class="na-modal-title">
+                    <i data-lucide="calendar-plus"></i>
+                    <h3>New Appointment</h3>
+                </div>
+                <button class="na-modal-close" onclick="closeNewAppointmentModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="na-modal-body">
+
+                <!-- Step 1: Patient -->
+                <div class="na-section-label">
+                    <i data-lucide="user"></i>
+                    Patient
+                </div>
+
+                <!-- Patient search -->
+                <div id="naPatientSearchSection">
+                    <div class="na-patient-search-wrapper">
+                        <input type="text" id="naPatientSearchInput" class="na-input"
+                            placeholder="Search by name or WhatsApp number..." oninput="onNaPatientSearch(this.value)"
+                            autocomplete="off">
+                        <div id="naPatientAutocomplete" class="na-autocomplete" style="display:none;"></div>
+                    </div>
+                    <div id="naSelectedPatientChip" class="na-patient-chip" style="display:none;">
+                        <i data-lucide="user-check"></i>
+                        <span id="naSelectedPatientLabel"></span>
+                        <button type="button" id="naClearPatientBtn" onclick="clearSelectedPatient()">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+                    <div id="naToggleNewPatientContainer" class="na-new-patient-toggle">
+                        <button type="button" id="naToggleNewPatientBtn" onclick="toggleNewPatientForm()">
+                            <i data-lucide="user-plus"></i>
+                            Add new patient instead
+                        </button>
+                    </div>
+                </div>
+
+                <!-- New patient inline form -->
+                <div id="naNewPatientSection" style="display:none;">
+                    <div class="na-row">
+                        <div class="na-form-group">
+                            <label for="naNewPatientName">Patient Name *</label>
+                            <input type="text" id="naNewPatientName" class="na-input" placeholder="Full name">
+                        </div>
+                        <div class="na-form-group">
+                            <label for="naNewPatientPhone">WhatsApp Number *</label>
+                            <div class="na-phone-wrapper">
+                                <span class="na-phone-prefix">+91</span>
+                                <input type="tel" id="naNewPatientPhone" class="na-input na-input-phone"
+                                    placeholder="9876543210" maxlength="13">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="na-new-patient-toggle">
+                        <button type="button" onclick="toggleNewPatientForm()">
+                            <i data-lucide="search"></i>
+                            Search existing patient instead
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hidden patient id -->
+                <input type="hidden" id="naPatientId">
+                <input type="hidden" id="naFollowupSessionId">
+
+                <div class="na-divider"></div>
+
+                <!-- Step 2: Doctor + Date -->
+                <div class="na-section-label">
+                    <i data-lucide="calendar"></i>
+                    Schedule
+                </div>
+
+                <div class="na-row">
+                    <div class="na-form-group">
+                        <label for="naDoctorSelect">Doctor *</label>
+                        <select id="naDoctorSelect" class="na-input na-select" onchange="loadSlotsForBooking()">
+                            <option value="">Select doctor...</option>
+                        </select>
+                    </div>
+                    <div class="na-form-group">
+                        <label for="naDateInput">Date *</label>
+                        <input type="date" id="naDateInput" class="na-input" onchange="loadSlotsForBooking()">
+                    </div>
+                </div>
+
+                <!-- Step 3: Slot -->
+                <div class="na-form-group">
+                    <label for="naSlotSelect">Time Slot *</label>
+                    <select id="naSlotSelect" class="na-input na-select" disabled>
+                        <option value="">Select doctor &amp; date first...</option>
+                    </select>
+                    <p id="naSlotHint" class="na-hint" style="display:none;"></p>
+                </div>
+
+                <div class="na-divider"></div>
+
+                <!-- Step 4: Notes (optional) -->
+                <div class="na-form-group">
+                    <label for="naNotesInput">
+                        Notes
+                        <span class="na-optional">(optional)</span>
+                    </label>
+                    <textarea id="naNotesInput" class="na-input na-textarea"
+                        placeholder="Reason for visit, additional notes..."></textarea>
+                </div>
+
+            </div><!-- /.na-modal-body -->
+
+            <!-- Modal Footer -->
+            <div class="na-modal-footer">
+                <button class="btn btn-secondary" onclick="closeNewAppointmentModal()">Cancel</button>
+                <button class="btn btn-primary na-save-btn" id="naSaveBtn" onclick="saveNewAppointment()">
+                    <i data-lucide="check"></i>
+                    Book Appointment
+                </button>
+            </div>
+
+        </div><!-- /.na-modal-card -->
+    </div><!-- /#newAppointmentModal -->
+
+    <!-- ========== CONSULTATION & FOLLOW-UP MODAL ========== -->
+    <div id="consultationModal" class="na-modal-overlay" style="display:none;" onclick="handleConsultationOverlayClick(event)">
+        <div class="na-modal-card">
+            <div class="na-modal-header">
+                <div class="na-modal-title">
+                    <i data-lucide="stethoscope"></i>
+                    <h3>Consultation & Follow-up</h3>
+                </div>
+                <button class="na-modal-close" onclick="closeConsultationModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div class="na-modal-body">
+                <input type="hidden" id="consultationAppointmentId">
+                <input type="hidden" id="consultationPatientId">
+                <input type="hidden" id="consultationDoctorId">
+
+                <div class="na-section-label">
+                    <i data-lucide="file-text"></i>
+                    Consultation Details
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <p style="font-weight: 500; margin-bottom: 0.25rem;">Patient: <span id="consultationPatientName" style="color: #6b7280;">Loading...</span></p>
+                    <p style="font-weight: 500; margin-bottom: 1rem;">Doctor: <span id="consultationDoctorName" style="color: #6b7280;">Loading...</span></p>
+                    
+                    <div class="na-form-group">
+                        <label for="consultationNotes">Consultation Notes</label>
+                        <textarea id="consultationNotes" class="na-input na-textarea" style="height: 80px;" placeholder="Document your findings, diagnosis, or treatment provided today..."></textarea>
+                    </div>
+                </div>
+
+                <div class="na-section-label">
+                    <i data-lucide="calendar"></i>
+                    Plan Follow-up Sessions
+                </div>
+
+                <div class="na-form-group">
+                    <label>Does the patient need follow-up sessions?</label>
+                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                        <label class="checkbox-label">
+                            <input type="radio" name="needsFollowup" value="no" checked onchange="toggleFollowupFields(false)">
+                            <span>No follow-up needed</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="radio" name="needsFollowup" value="yes" onchange="toggleFollowupFields(true)">
+                            <span>Create follow-up plan</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="followupPlanSection" style="display:none; margin-top: 1rem;">
+                    <!-- Preset Selector -->
+                    <div class="na-form-group" id="followupPresetGroup" style="display: none; margin-bottom: 1.5rem;">
+                        <label style="color: #1e40af; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+                            <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
+                            Select a Follow-up Template
+                        </label>
+                        <div id="presetGallery" class="preset-gallery">
+                            <!-- Preset options will be rendered here -->
+                             <p style="font-size: 0.8125rem; color: #6b7280; font-style: italic;">Loading templates...</p>
+                        </div>
+                        <input type="hidden" id="followupPresetSelect" value="">
+                    </div>
+
+                    <div class="na-form-group" style="margin-bottom: 1.5rem;">
+                        <label for="followupPlanName">Plan Name (e.g. Root Canal Treatment)</label>
+                        <input type="text" id="followupPlanName" class="na-input" list="planNamesList" placeholder="Enter or select treatment plan name...">
+                        <datalist id="planNamesList"></datalist>
+                    </div>
+
+                    <div class="na-row">
+                        <div class="na-form-group">
+                            <label for="followupInterval">Interval Type</label>
+                            <select id="followupInterval" class="na-input na-select" onchange="generateFollowupPreview()">
+                                <option value="daily">Daily</option>
+                                <option value="weekly" selected>Weekly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="custom">Custom (Select dates manually)</option>
+                            </select>
+                        </div>
+                        <div class="na-form-group">
+                            <label for="followupSessions">Total Sessions (Max 20)</label>
+                            <input type="number" id="followupSessions" class="na-input" min="1" max="20" value="1" onchange="generateFollowupPreview()">
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1rem;">
+                        <label class="checkbox-label" style="font-size: 0.875rem;">
+                            <input type="checkbox" id="saveFollowupAsPreset" onchange="togglePresetNameField()">
+                            <span>Save this as a new preset</span>
+                        </label>
+                        <div id="newPresetNameGroup" style="display: none; margin-top: 0.75rem;">
+                            <input type="text" id="followupPresetName" class="na-input" placeholder="Enter preset name (e.g. Tooth Extraction Phase 2)">
+                        </div>
+                    </div>
+
+                    <div class="na-form-group" style="margin-top: 1rem;">
+                        <label>Start Follow-ups From Date</label>
+                        <input type="date" id="followupStartDate" class="na-input" onchange="generateFollowupPreview()">
+                    </div>
+
+                    <!-- Preview Table -->
+                    <div class="table-card" style="margin-top: 1.5rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; overflow: hidden;">
+                        <div style="background: #f9fafb; padding: 0.75rem 1rem; border-bottom: 1px solid #e5e7eb; font-weight: 500; font-size: 0.875rem;">
+                            Session Dates Preview
+                        </div>
+                        <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+                            <table class="data-table" style="margin: 0;">
+                                <thead>
+                                    <tr>
+                                        <th style="padding: 0.5rem 1rem;">Session #</th>
+                                        <th style="padding: 0.5rem 1rem;">Expected Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="followupPreviewBody">
+                                    <tr><td colspan="2" class="text-center" style="padding: 1rem; color: #6b7280;">Adjust settings above to preview sessions</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="na-modal-footer">
+                <button class="btn btn-secondary" onclick="closeConsultationModal()">Cancel</button>
+                <button class="btn btn-primary na-save-btn" id="saveConsultationBtn" onclick="saveConsultation()">
+                    <i data-lucide="check"></i>
+                    Complete & Save
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
